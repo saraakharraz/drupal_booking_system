@@ -2,7 +2,8 @@ name: appointment_feature
 type: module
 core_version_requirement: '^10 || ^11'
 dependencies:
-  - field
-  - image
-  - taxonomy
-  - user
+  - 'appointment:appointment'
+  - 'drupal:field'
+  - 'drupal:image'
+  - 'drupal:taxonomy'
+  - 'drupal:user'

@@ -84,30 +84,72 @@ function appointment_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) 
  *
  * Ensure RDV- prefix is added when updating titles.
  */
-function appointment_entity_update(\Drupal\Core\Entity\EntityInterface $entity) {
-  // Only process appointment entities
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_update().
+ */
+function appointment_entity_update(EntityInterface $entity) {
+
   if ($entity->getEntityTypeId() !== 'appointment') {
     return;
   }
 
-  $title = $entity->get('title')->value;
-
-  // ==================== ADD RDV- PREFIX ====================
-  // Add RDV- prefix if not already present
+  // ------------------- 1. RDV- prefix -------------------
+  $title = $entity->get('title')->value ?? '';
   if (!empty($title) && strpos($title, 'RDV-') !== 0) {
     $title = 'RDV-' . $title;
 
-    // Update in database
     \Drupal::database()->update('appointment')
       ->fields(['title' => $title])
       ->condition('id', $entity->id())
       ->execute();
 
-    // Update the entity object too
     $entity->set('title', $title);
   }
-}
 
+  // ------------------- 2. Status change -------------------
+  if (!$entity->original) {
+    return;
+  }
+
+  $old_status = $entity->original->get('status')->value ?? '';
+  $new_status = $entity->get('status')->value ?? '';
+
+  \Drupal::logger('appointment')->notice('Old: @old → New: @new', [
+    '@old' => $old_status,
+    '@new' => $new_status,
+  ]);
+
+  // ------------------- 3. Send email if confirmed -------------------
+  if ($old_status === 'pending' && $new_status === 'confirmed') {
+
+    $mailManager = \Drupal::service('plugin.manager.mail');
+
+    $params = [
+      'customer_name'   => $entity->hasField('customer_name') ? $entity->get('customer_name')->value : '',
+      'customer_email'  => $entity->hasField('customer_email') ? $entity->get('customer_email')->value : '',
+      'customer_phone'  => $entity->hasField('customer_phone') ? $entity->get('customer_phone')->value : '',
+      'customer_address'=> $entity->hasField('customer_address') ? $entity->get('customer_address')->value : '',
+      'appointment_date'=> $entity->hasField('appointment_date') ? $entity->get('appointment_date')->value : '',
+      'agency'          => $entity->hasField('agency') ? $entity->get('agency')->target_id : 0,
+      'adviser'         => $entity->hasField('adviser') ? $entity->get('adviser')->target_id : 0,
+      'type'            => $entity->hasField('appointment_type') ? $entity->get('appointment_type')->target_id : 0,
+    ];
+
+    $mailManager->mail(
+      'appointment',
+      'appointment_confirmation',
+      $params['customer_email'],
+      \Drupal::currentUser()->getPreferredLangcode(),
+      $params
+    );
+
+    \Drupal::logger('appointment')->notice('Confirmation email triggered for: @email', [
+      '@email' => $params['customer_email']
+    ]);
+  }
+}
 /**
  * Implements hook_theme().
  */
@@ -316,9 +358,19 @@ function _appointment_get_advisers_with_agency_type() {
 /**
  * Implements hook_mail().
  */
-function appointment_mail($key, &$message, $params) {
+function appointment_mail($key, &$message, $params)
+{
   switch ($key) {
+    case 'appointment_pending':
+      $message['subject'] = t('Appointment Request Received');
 
+      $body = "Hello {$params['customer_name']},\n\n";
+      $body .= "Your appointment request has been received and is pending confirmation.\n\n";
+      $body .= "We will notify you once it is confirmed.\n\n";
+      $body .= "Thank you.";
+
+      $message['body'][] = $body;
+      break;
     // -----------------------------------------
     // Confirmation email
     // -----------------------------------------
@@ -446,3 +498,5 @@ function appointment_mail($key, &$message, $params) {
       break;
   }
 }
+
+

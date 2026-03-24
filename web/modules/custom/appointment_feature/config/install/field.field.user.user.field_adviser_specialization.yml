@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_adviser_specialization
+    - taxonomy.vocabulary.appointment_type
+  module:
+    - user
+id: user.user.field_adviser_specialization
+field_name: field_adviser_specialization
+entity_type: user
+bundle: user
+label: Specialization
+description: 'Select the primary specialization for this adviser.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      appointment_type: appointment_type
+    auto_create: false
+field_type: entity_reference

@@ -1,187 +1,197 @@
 /**
- * Booking Calendar - FullCalendar Integration
+ * @file
+ * FullCalendar - generate slots according to adviser working days/hours and dynamic duration
  */
 (function (Drupal, drupalSettings, once) {
   'use strict';
 
-  Drupal.behaviors.appointmentBookingCalendar = {
+  Drupal.behaviors.appointmentCalendar = {
     attach: function (context, settings) {
-      const calendarContainer = once('booking-calendar', '#appointment-calendar', context);
 
-      if (!calendarContainer.length) {
-        return;
-      }
+      once('appointment-calendar', '#appointment-calendar', context).forEach(function (el) {
 
-      let selectedEvent = null;
+        const agencyId   = settings.appointment?.agency_id;
+        const adviserId  = settings.appointment?.adviser_id;
+        const workingDaysRaw  = settings.appointment?.adviser_working_days || '';
+        const workingHoursRaw = settings.appointment?.adviser_working_hours || '';
+        const slotDurationMinutes = settings.appointment?.default_appointment_duration || 30; // durée dynamique
 
-      const calendar = new FullCalendar.Calendar(calendarContainer[0], {
-        initialView: 'timeGridWeek',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'timeGridWeek,timeGridDay',
-        },
-        height: 'auto',
-        slotDuration: '00:30:00',
-        slotLabelInterval: '00:30',
-        slotLabelFormat: {
-          meridiem: 'short',
-          hour: 'numeric',
-          minute: '2-digit',
-        },
-        // FILTRER SEULEMENT LUNDI À SAMEDI (1-6)
-        // Masquer dimanche (0) et dimanche (7)
-        dayCellClassNames: function(arg) {
-          // arg.date = Date objet du jour
-          const dayOfWeek = arg.date.getDay(); // 0=Dimanche, 6=Samedi
-          // Afficher seulement lundi (1) à samedi (6)
-          if (dayOfWeek === 0) {
-            return ['fc-disabled-day'];
+        if (!agencyId || !adviserId) {
+          console.warn('[Appointment] agency_id ou adviser_id manquant dans drupalSettings');
+          return;
+        }
+
+        // -----------------------------
+        // Parse working days
+        // -----------------------------
+        let workingDays = [];
+        const dayNameToNumber = { Sunday:0, Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6 };
+
+        if (workingDaysRaw.includes('-')) {
+          const [startDay, endDay] = workingDaysRaw.split('-').map(d => d.trim());
+          const startNum = dayNameToNumber[startDay];
+          const endNum   = dayNameToNumber[endDay];
+          if (startNum !== undefined && endNum !== undefined) {
+            for (let i = startNum; i <= endNum; i++) workingDays.push(i);
           }
-          return [];
-        },
-        slotMinTime: '07:00:00',
-        slotMaxTime: '22:00:00',
-        selectable: true,
-        eventInteractive: true,
-        events: function (info, successCallback, failureCallback) {
-          const agencyId = document.querySelector('[name="agency"]')?.value;
-          const adviserId = document.querySelector('[name="adviser"]')?.value;
+        } else {
+          workingDays = workingDaysRaw.split(';').map(d => dayNameToNumber[d.trim()]).filter(d => d !== undefined);
+        }
 
-          if (!agencyId || !adviserId) {
-            successCallback([]);
-            return;
-          }
+        if (workingDays.length === 0) workingDays = [1,2,3,4,5];
 
-          fetch('/api/available-slots', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-Token': drupalSettings.csrfToken?.token || '',
-            },
-            body: JSON.stringify({
-              agency_id: agencyId,
-              adviser_id: adviserId,
-              start: info.startStr,
-              end: info.endStr,
-            }),
-          })
-            .then(response => response.json())
-            .then(data => {
-              console.log('✓ Slots loaded:', data.length + ' slots');
-              successCallback(data);
+        // -----------------------------
+        // Parse working hours
+        // -----------------------------
+        const hoursRange = workingHoursRaw.split('-');
+        const startHour   = parseInt(hoursRange[0].split(':')[0], 10);
+        const startMinute = parseInt(hoursRange[0].split(':')[1], 10);
+        const endHour     = parseInt(hoursRange[1].split(':')[0], 10);
+        const endMinute   = parseInt(hoursRange[1].split(':')[1], 10);
+
+        // -----------------------------
+        // Initialize FullCalendar
+        // -----------------------------
+        const calendar = new FullCalendar.Calendar(el, {
+          initialView: 'timeGridWeek',
+          locale: 'fr',
+          slotDuration: '00:30:00',
+          allDaySlot: false,
+          nowIndicator: true,
+          selectable: false,
+          editable: false,
+          slotMinTime: '08:00:00',
+          slotMaxTime: '19:00:00',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'timeGridWeek,timeGridDay',
+          },
+
+          events: function (info, successCallback, failureCallback) {
+
+            fetch('/api/available-slots', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': drupalSettings.csrfToken?.token || '',
+              },
+              body: JSON.stringify({
+                agency_id:  agencyId,
+                adviser_id: adviserId,
+              }),
             })
-            .catch(error => {
-              console.error('✗ Error loading slots:', error);
-              failureCallback(error);
-            });
-        },
-        select: function (info) {
-          // Ne pas sélectionner dimanche
-          const dayOfWeek = info.start.getDay();
-          if (dayOfWeek === 0) {
-            alert('Dimanche n\'est pas disponible');
-            return;
-          }
+              .then(r => r.json())
+              .then(booked => {
 
-          selectedEvent = info.start;
-          saveDatetime(info.start);
-          updateCalendarColors(calendar, selectedEvent);
-          calendar.unselect();
-        },
-        eventClick: function (info) {
-          if (info.event.extendedProps.available) {
-            selectedEvent = info.event.start;
-            saveDatetime(info.event.start);
-            updateCalendarColors(calendar, selectedEvent);
-          }
-        },
+                const slots = [];
+                const cursor = new Date(info.start);
+
+                while (cursor < info.end) {
+                  const day = cursor.getDay();
+                  if (workingDays.includes(day)) {
+
+                    let slotStart = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), startHour, startMinute, 0);
+                    const slotEndLimit = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), endHour, endMinute, 0);
+
+                    while (slotStart < slotEndLimit) {
+                      const end = new Date(slotStart.getTime() + slotDurationMinutes*60000); // <- durée dynamique
+                      const pad = n => String(n).padStart(2,'0');
+                      const key = slotStart.getFullYear() + '-' +
+                        pad(slotStart.getMonth()+1) + '-' +
+                        pad(slotStart.getDate()) + 'T' +
+                        pad(slotStart.getHours()) + ':' +
+                        pad(slotStart.getMinutes());
+
+                      const available = booked.indexOf(key) === -1;
+
+                      slots.push({
+                        title: available ? 'Disponible' : 'Indisponible',
+                        start: slotStart,
+                        end: end,
+                        backgroundColor: available ? '#4CAF50' : '#F44336',
+                        borderColor: available ? '#2E7D32' : '#C62828',
+                        textColor: '#ffffff',
+                        extendedProps: { available: available },
+                      });
+
+                      slotStart = end;
+                    }
+
+                  }
+                  cursor.setDate(cursor.getDate() + 1);
+                }
+
+                successCallback(slots);
+
+              })
+              .catch(e => {
+                console.error('[Appointment] Erreur:', e);
+                failureCallback(e);
+              });
+          },
+
+          eventDidMount: function (info) {
+            info.el.style.pointerEvents = 'auto';
+            info.el.style.cursor = info.event.extendedProps.available ? 'pointer' : 'not-allowed';
+            if (!info.event.extendedProps.available) {
+              info.el.style.opacity = '0.7';
+            }
+          },
+
+          eventClick: function (info) {
+            info.jsEvent.preventDefault();
+            info.jsEvent.stopPropagation();
+
+            if (!info.event.extendedProps.available) return;
+
+            calendar.getEvents().forEach(ev => {
+              if (ev.extendedProps.available) {
+                ev.setProp('backgroundColor', '#4CAF50');
+                ev.setProp('borderColor', '#2E7D32');
+              }
+            });
+
+            info.event.setProp('backgroundColor', '#1565c0');
+            info.event.setProp('borderColor', '#0d47a1');
+
+            const d = info.event.start;
+            const pad = n => String(n).padStart(2,'0');
+            const iso = d.getFullYear() + '-' +
+              pad(d.getMonth() + 1) + '-' +
+              pad(d.getDate()) + 'T' +
+              pad(d.getHours()) + ':' +
+              pad(d.getMinutes()) + ':' +
+              pad(d.getSeconds());
+
+            const field = document.querySelector('[name="appointment_date"]')
+              || document.getElementById('appointment-selected-date');
+            if (field) {
+              field.value = iso;
+              field.dispatchEvent(new Event('change'));
+            }
+
+            const fmt     = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const fmtTime = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const label   = fmt.format(d) + ' de ' + fmtTime.format(d) + ' à ' + fmtTime.format(info.event.end);
+
+            let infoEl = document.getElementById('appointment-slot-info');
+            if (!infoEl) {
+              infoEl = document.createElement('div');
+              infoEl.id = 'appointment-slot-info';
+              infoEl.className = 'appointment-slot-selected';
+              infoEl.style.cssText = 'margin-top:10px;padding:10px;background:#e3f2fd;border-left:4px solid #1565c0;font-size:1rem;';
+              el.insertAdjacentElement('afterend', infoEl);
+            }
+            infoEl.innerHTML = '<strong>' + Drupal.t('Créneau sélectionné :') + '</strong> ' + label;
+          },
+        });
+
+        calendar.render();
+
       });
 
-      calendar.render();
-
-      // Reload events when agency or adviser changes
-      const agencySelect = document.querySelector('[name="agency"]');
-      const adviserSelect = document.querySelector('[name="adviser"]');
-
-      if (agencySelect) {
-        agencySelect.addEventListener('change', function () {
-          selectedEvent = null;
-          clearDatetime();
-          calendar.refetchEvents();
-        });
-      }
-
-      if (adviserSelect) {
-        adviserSelect.addEventListener('change', function () {
-          selectedEvent = null;
-          clearDatetime();
-          calendar.refetchEvents();
-        });
-      }
-
-      /**
-       * Save datetime in Drupal format: YYYY-MM-DD HH:mm:ss
-       */
-      function saveDatetime(dateObj) {
-        const dateTimeField = document.querySelector('[name="appointment_date"]');
-        if (dateTimeField) {
-          // Format: YYYY-MM-DD HH:mm:ss (Drupal datetime format)
-          const year = dateObj.getFullYear();
-          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-          const day = String(dateObj.getDate()).padStart(2, '0');
-          const hours = String(dateObj.getHours()).padStart(2, '0');
-          const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-
-          const drupalFormat = `${year}-${month}-${day} ${hours}:${minutes}:00`;
-          dateTimeField.value = drupalFormat;
-
-          console.log('✓ Datetime saved:', drupalFormat);
-          console.log('✓ Field value:', dateTimeField.value);
-          console.log('✓ Field exists:', !!dateTimeField);
-        }
-
-        // Display selected datetime
-        const displayField = document.querySelector('#selected-datetime');
-        if (displayField) {
-          displayField.innerHTML = '<p style="color: #4CAF50; font-weight: bold;"><strong>✓ Selected:</strong> ' +
-            dateObj.toLocaleString() + '</p>';
-        }
-      }
-
-      /**
-       * Clear datetime field
-       */
-      function clearDatetime() {
-        const dateTimeField = document.querySelector('[name="appointment_date"]');
-        if (dateTimeField) {
-          dateTimeField.value = '';
-        }
-
-        const displayField = document.querySelector('#selected-datetime');
-        if (displayField) {
-          displayField.innerHTML = '';
-        }
-      }
-
-      /**
-       * Update calendar colors based on selection
-       */
-      function updateCalendarColors(cal, selected) {
-        cal.getEvents().forEach(event => {
-          if (event.start && selected && event.start.getTime() === selected.getTime() && event.extendedProps.available) {
-            event.setProp('backgroundColor', '#2196F3');  // Bleu
-            event.setProp('borderColor', '#1976D2');
-            event.setProp('textColor', '#fff');
-            event.setProp('title', '✓ Selected');
-          } else if (event.extendedProps.available) {
-            event.setProp('backgroundColor', '#4CAF50');  // Vert
-            event.setProp('borderColor', '#2E7D32');
-            event.setProp('textColor', '#fff');
-            event.setProp('title', 'Available');
-          }
-        });
-      }
     },
   };
-})(Drupal, drupalSettings, once);
+
+}(Drupal, drupalSettings, once));

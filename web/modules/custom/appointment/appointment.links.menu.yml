@@ -53,3 +53,11 @@ agency.add:
   route_name: entity.agency.add_form
   parent: agency.admin
   weight: 5
+
+appointment.user.appointments_link:
+  title: 'My Appointments'
+  description: 'View your appointments'
+  parent: system.main_menu
+  route_name: appointment.user.appointments
+  menu_name: main
+  weight: 10

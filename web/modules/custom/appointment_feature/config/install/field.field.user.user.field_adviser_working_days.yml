@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_adviser_working_days
+  module:
+    - user
+id: user.user.field_adviser_working_days
+field_name: field_adviser_working_days
+entity_type: user
+bundle: user
+label: 'Working Days'
+description: 'Example: Monday-Friday or Monday;Wednesday;Friday'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

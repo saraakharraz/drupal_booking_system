@@ -31,27 +31,27 @@ class AppointmentSettingsForm extends ConfigFormBase {
     $config = $this->config('appointment.settings');
 
     // Email notifications setting
-    $form['email_section'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Email Notifications'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-    ];
-
-    $form['email_section']['email_notifications_enabled'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enable email notifications'),
-      '#description' => $this->t('Send emails on appointment creation, modification, and cancellation.'),
-      '#default_value' => $config->get('email_notifications_enabled'),
-    ];
-
-    $form['email_section']['notification_email'] = [
-      '#type' => 'email',
-      '#title' => $this->t('Admin notification email'),
-      '#description' => $this->t('Email address to receive appointment notifications.'),
-      '#default_value' => $config->get('notification_email'),
-      '#required' => FALSE,
-    ];
+//    $form['email_section'] = [
+//      '#type' => 'fieldset',
+//      '#title' => $this->t('Email Notifications'),
+//      '#collapsible' => TRUE,
+//      '#collapsed' => FALSE,
+//    ];
+//
+//    $form['email_section']['email_notifications_enabled'] = [
+//      '#type' => 'checkbox',
+//      '#title' => $this->t('Enable email notifications'),
+//      '#description' => $this->t('Send emails on appointment creation, modification, and cancellation.'),
+//      '#default_value' => $config->get('email_notifications_enabled'),
+//    ];
+//
+//    $form['email_section']['notification_email'] = [
+//      '#type' => 'email',
+//      '#title' => $this->t('Admin notification email'),
+//      '#description' => $this->t('Email address to receive appointment notifications.'),
+//      '#default_value' => $config->get('notification_email'),
+//      '#required' => FALSE,
+//    ];
 
     // Appointment settings
     $form['appointment_section'] = [

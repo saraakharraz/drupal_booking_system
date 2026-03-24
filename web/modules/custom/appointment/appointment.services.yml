@@ -14,7 +14,4 @@ services:
       - '@logger.factory'
       - '@plugin.manager.mail'
 
-  appointment.agency_export:
-    class: Drupal\appointment\Service\AgencyExportService
-    arguments: [ '@entity_type.manager' ]
 

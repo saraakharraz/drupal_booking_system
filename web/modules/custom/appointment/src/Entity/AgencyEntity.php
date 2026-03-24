@@ -299,35 +299,9 @@ class AgencyEntity extends ContentEntityBase {
     return $hours;
   }
 
-  /**
-   * Check if agency is open at a specific date/time.
-   */
-  public function isOpenAtTime(\DateTime $datetime): bool {
-    $hours = $this->getOperatingHours();
-    $day = strtolower($datetime->format('l'));
-    $time = $datetime->format('H:i');
 
-    if (!isset($hours[$day])) {
-      return FALSE;
-    }
 
-    $day_hours = $hours[$day];
 
-    // Check if closed (no hours set)
-    if ($day_hours['closed']) {
-      return FALSE;
-    }
-
-    // Check if time is within opening hours
-    return $time >= $day_hours['open'] && $time <= $day_hours['close'];
-  }
-
-  /**
-   * Get operating hours as JSON (for export).
-   */
-  public function getOperatingHoursAsJson(): string {
-    return json_encode($this->getOperatingHours(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-  }
 
 
 }

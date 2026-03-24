@@ -271,12 +271,28 @@ class BookingWizardForm extends FormBase {
   protected function buildStep4(&$form, FormStateInterface $form_state) {
     $form['#attached']['library'][] = 'appointment/appointment.theme';
 
+    $form['#attached']['drupalSettings']['appointment']['default_appointment_duration'] = $this->config('appointment.settings')->get('default_appointment_duration') ?? 30;
+
     $agency_id = $this->getTempData('agency');
     $adviser_id = $this->getTempData('adviser');
+
+    // Passer agency_id et adviser_id au JS via drupalSettings
+    $form['#attached']['drupalSettings']['appointment']['agency_id']  = $agency_id;
+    $form['#attached']['drupalSettings']['appointment']['adviser_id'] = $adviser_id;
+
 
     if ($agency_id && $adviser_id) {
       $agency = \Drupal::entityTypeManager()->getStorage('agency')->load($agency_id);
       $adviser = \Drupal::entityTypeManager()->getStorage('user')->load($adviser_id);
+
+
+      // Get working days and hours from the fields
+      $working_days  = $adviser->get('field_adviser_working_days')->value ?? '';
+      $working_hours = $adviser->get('field_adviser_working_hours')->value ?? '';
+
+      // Pass working days and hours to JS
+      $form['#attached']['drupalSettings']['appointment']['adviser_working_days']  = $working_days;
+      $form['#attached']['drupalSettings']['appointment']['adviser_working_hours'] = $working_hours;
 
       $form['info'] = [
         '#markup' => '<div class="appointment-info"><p><strong>Agency:</strong> ' . $agency->getName() . '</p>' .
@@ -552,7 +568,7 @@ class BookingWizardForm extends FormBase {
 
     // Send confirmation email using EmailService
     $params = $all_data;
-    \Drupal::service('plugin.manager.mail')->mail('appointment','appointment_confirmation',$all_data['customer_email'],'en',$params);
+    \Drupal::service('plugin.manager.mail')->mail('appointment','appointment_pending',$all_data['customer_email'],'en',$params);
 
 
     // Clear temp data
