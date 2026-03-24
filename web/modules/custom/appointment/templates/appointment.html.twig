@@ -1,0 +1,107 @@
+{#<article class="appointment-view" id="appointment-{{ elements['#appointment'].id }}">#}
+
+{#  <nav class="breadcrumb" aria-label="Breadcrumb">#}
+{#    <a href="{{ path('<front>') }}">Home</a>#}
+{#    <span class="separator">/</span>#}
+{#    <a href="{{ path('system.admin') }}">Administration</a>#}
+{#    <span class="separator">/</span>#}
+{#    <a href="{{ path('entity.appointment.collection') }}">Appointments</a>#}
+{#  </nav>#}
+
+{#  <div class="appointment-header">#}
+{#    <div class="appointment-title-section">#}
+{#      <h1 class="appointment-title">#}
+{#        {{ elements['#appointment'].getTitle() }}#}
+{#        <button class="favorite-btn" aria-label="Add to favorites">☆</button>#}
+{#      </h1>#}
+{#    </div>#}
+
+{#    <div class="appointment-actions">#}
+{#      <ul class="tabs">#}
+{#        <li><a href="{{ path('entity.appointment.canonical', {'appointment': elements['#appointment'].id}) }}" class="active">View</a></li>#}
+{#        <li><a href="{{ path('entity.appointment.edit_form', {'appointment': elements['#appointment'].id}) }}">Edit</a></li>#}
+{#        <li><a href="{{ path('entity.appointment.delete_form', {'appointment': elements['#appointment'].id}) }}">Delete</a></li>#}
+{#      </ul>#}
+{#    </div>#}
+{#  </div>#}
+
+{#  <div class="appointment-content">#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Date and Time</h2>#}
+{#      <p class="section-value">{{ elements['#appointment_date'] }}</p>#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Status</h2>#}
+{#      <p class="section-value status status-{{ elements['#status']|lower }}">#}
+{#        {{ elements['#status']|capitalize }}#}
+{#      </p>#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Adviser</h2>#}
+{#      {% if elements['#adviser_id'] %}#}
+{#        <p class="section-value">#}
+{#          <a href="{{ path('entity.user.canonical', {'user': elements['#adviser_id']}) }}">#}
+{#            {{ elements['#adviser_name'] }}#}
+{#          </a>#}
+{#        </p>#}
+{#      {% else %}#}
+{#        <p class="section-value">N/A</p>#}
+{#      {% endif %}#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Appointment Type</h2>#}
+{#      {% if elements['#appointment_type_id'] %}#}
+{#        <p class="section-value">#}
+{#          <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': elements['#appointment_type_id']}) }}">#}
+{#            {{ elements['#appointment_type_name'] }}#}
+{#          </a>#}
+{#        </p>#}
+{#      {% else %}#}
+{#        <p class="section-value">N/A</p>#}
+{#      {% endif %}#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Agency</h2>#}
+{#      {% if elements['#agency_id'] %}#}
+{#        <p class="section-value">#}
+{#          <a href="{{ path('entity.agency.canonical', {'agency': elements['#agency_id']}) }}">#}
+{#            {{ elements['#agency_name'] }}#}
+{#          </a>#}
+{#        </p>#}
+{#      {% else %}#}
+{#        <p class="section-value">N/A</p>#}
+{#      {% endif %}#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Customer Name</h2>#}
+{#      <p class="section-value">{{ elements['#customer_name'] }}</p>#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Customer Email</h2>#}
+{#      <p class="section-value">#}
+{#        <a href="mailto:{{ elements['#customer_email'] }}">{{ elements['#customer_email'] }}</a>#}
+{#      </p>#}
+{#    </div>#}
+
+{#    <div class="appointment-section">#}
+{#      <h2 class="section-title">Customer Phone</h2>#}
+{#      <p class="section-value">{{ elements['#customer_phone'] }}</p>#}
+{#    </div>#}
+
+{#    {% if elements['#notes'] %}#}
+{#      <div class="appointment-section">#}
+{#        <h2 class="section-title">Notes</h2>#}
+{#        <p class="section-value">{{ elements['#notes'] }}</p>#}
+{#      </div>#}
+{#    {% endif %}#}
+
+{#  </div>#}
+
+{#</article>#}

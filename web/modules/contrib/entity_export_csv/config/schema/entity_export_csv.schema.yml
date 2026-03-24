@@ -1,0 +1,65 @@
+entity_export_csv.entity_export_csv.*:
+  type: config_entity
+  label: 'Entity export csv configuration'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    status:
+      type: boolean
+      label: 'Status'
+    uuid:
+      type: string
+      label: 'UUID'
+    langcode:
+      type: string
+      labele: 'Langcode'
+    entity_type_id:
+      type: string
+      label: 'Target entity type id'
+    bundle:
+      type: string
+      label: 'Target bundle'
+    delimiter:
+      type: string
+      label: 'Delimiter'
+    fields:
+      type: sequence
+      label: 'Fields'
+      sequence:
+        type: mapping
+        mapping:
+          enable:
+            type: boolean
+            label: 'Enable'
+          order:
+            type: integer
+            label: 'Order'
+          exporter:
+            type: string
+            label: 'Exporter'
+          form:
+            type: mapping
+            mapping:
+              options:
+                type: mapping
+                mapping:
+                  header:
+                    type: string
+                    label: 'Header type'
+                  property:
+                    type: sequence
+                    sequence:
+                      type: string
+                  property_separator:
+                    type: string
+                    label: 'Property separator'
+                  property_separate_column:
+                    type: integer
+                    label: 'Property separate column'
+                  format:
+                    type: string
+                    label: 'Format'

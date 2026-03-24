@@ -1,0 +1,174 @@
+
+# List all appointments (admin view)
+entity.appointment.collection:
+  path: '/admin/appointments'
+  defaults:
+    _entity_list: 'appointment'
+    _title: 'Appointments'
+  requirements:
+    _permission: 'administer appointments'
+
+
+# Book new appointment
+entity.appointment.add_form:
+  path: '/admin/appointments/add'
+  defaults:
+    _entity_form: 'appointment.add'
+    _title: 'Book an Appointment'
+  requirements:
+    _permission: 'book appointment'
+
+# View single appointment
+entity.appointment.canonical:
+  path: '/admin/appointments/{appointment}'
+  defaults:
+    _entity_view: 'appointment.full'
+    _title: 'Appointment'
+  requirements:
+    _permission: 'administer appointments'
+
+# Edit appointment
+entity.appointment.edit_form:
+  path: '/admin/appointments/{appointment}/edit'
+  defaults:
+    _entity_form: 'appointment.edit'
+    _title: 'Edit Appointment'
+  requirements:
+    _permission: 'edit any appointment'
+
+# Delete appointment
+entity.appointment.delete_form:
+  path: '/admin/appointments/{appointment}/delete'
+  defaults:
+    _entity_form: 'appointment.delete'
+    _title: 'Delete Appointment'
+  requirements:
+    _permission: 'administer appointments'
+
+# Appointment settings
+appointment.settings:
+  path: '/admin/config/appointment'
+  defaults:
+    _form: 'Drupal\appointment\Form\AppointmentSettingsForm'
+    _title: 'Appointment Settings'
+  requirements:
+    _permission: 'access appointment settings'
+
+# ==================== AGENCY ROUTES ====================
+
+entity.agency.collection:
+  path: '/admin/agencies'
+  defaults:
+    _entity_list: 'agency'
+    _title: 'Agencies'
+  requirements:
+    _permission: 'administer agencies'
+
+entity.agency.add_form:
+  path: '/admin/agencies/add'
+  defaults:
+    _entity_form: 'agency.add'
+    _title: 'Add Agency'
+  requirements:
+    _permission: 'administer agencies'
+
+entity.agency.edit_form:
+  path: '/admin/agencies/{agency}/edit'
+  defaults:
+    _entity_form: 'agency.edit'
+    _title: 'Edit Agency'
+  requirements:
+    _permission: 'administer agencies'
+
+entity.agency.delete_form:
+  path: '/admin/agencies/{agency}/delete'
+  defaults:
+    _entity_form: 'agency.delete'
+    _title: 'Delete Agency'
+  requirements:
+    _permission: 'administer agencies'
+
+entity.agency.canonical:
+  path: '/admin/agencies/{agency}'
+  defaults:
+    _entity_view: 'agency.full'
+    _title: 'Agency'
+  requirements:
+    _permission: 'administer agencies'
+
+appointment.agency_export_json:
+  path: '/admin/agencies/export/json'
+  defaults:
+    _controller: 'Drupal\appointment\Controller\AgencyExportController::exportAgenciesJson'
+    _title: 'Export Agencies'
+  requirements:
+    _permission: 'administer agencies'
+
+appointment.booking:
+  path: '/prendre-un-rendez-vous'
+  defaults:
+    _form: 'Drupal\appointment\Form\BookingWizardForm'
+    _title: 'Book an Appointment'
+  requirements:
+    _access: 'TRUE'
+
+appointment.booking.step:
+  path: '/prendre-un-rendez-vous/step/{step}'
+  defaults:
+    _form: 'Drupal\appointment\Form\BookingWizardForm'
+    _title: 'Book an Appointment'
+  requirements:
+    _access: 'TRUE'
+    step: '\d+'
+
+appointment.api.available_slots:
+  path: '/api/available-slots'
+  defaults:
+    _controller: 'Drupal\appointment\Controller\AvailableSlotsController::getSlots'
+  methods:
+    - POST
+  requirements:
+    _access: 'TRUE'
+
+appointment.booking.confirm:
+  path: '/prendre-un-rendez-vous/confirmation'
+  defaults:
+    _controller: 'Drupal\appointment\Controller\AppointmentConfirmController::confirm'
+    _title: 'Appointment Confirmed'
+  requirements:
+    _access: 'TRUE'
+
+
+appointment.user.appointments:
+  path: '/mes-rendez-vous'
+  defaults:
+    _controller: 'Drupal\appointment\Controller\AppointmentUserController::appointments'
+    _title: 'My Appointments'
+  requirements:
+    _access: 'TRUE'
+
+appointment.user.modify:
+  path: '/mes-rendez-vous/{appointment_id}/modifier'
+  defaults:
+    _controller: 'Drupal\appointment\Controller\AppointmentUserController::modify'
+    _title: 'Modify Appointment'
+  requirements:
+    _access: 'TRUE'
+    appointment_id: '\d+'
+
+appointment.user.cancel:
+  path: '/mes-rendez-vous/{appointment_id}/supprimer'
+  defaults:
+    _controller: 'Drupal\appointment\Controller\AppointmentUserController::cancel'
+    _title: 'Cancel Appointment'
+  requirements:
+    _access: 'TRUE'
+    appointment_id: '\d+'
+
+appointment.user.edit:
+  path: '/user/appointments/{appointment_id}/edit'
+  defaults:
+    _form: '\Drupal\appointment\Form\AppointmentUserEditForm'
+    _title: 'Modifier le rendez-vous'
+  requirements:
+    _permission: 'edit own appointment'

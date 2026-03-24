@@ -1,0 +1,4 @@
+id,name,address,contact_phone,contact_email,monday_open,monday_close,tuesday_open,tuesday_close,wednesday_open,wednesday_close,thursday_open,thursday_close,friday_open,friday_close,saturday_open,saturday_close,sunday_open,sunday_close
+1,Agadir HASSAN II,123 Boulevard Hassan II Agadir 80000 Morocco,+212 5 28 84 00 00,agadir@agency.ma,08:30,17:00,08:30,17:00,08:30,17:00,08:30,17:00,08:30,17:00,09:00,14:00,,
+2,Marrakech Centre,456 Rue de la Kasbah Marrakech 40000 Morocco,+212 5 24 44 55 66,marrakech@agency.ma,08:00,18:00,08:00,18:00,08:00,18:00,08:00,18:00,08:00,18:00,10:00,16:00,,
+3,Casablanca Gare,789 Avenue Mohammed V Casablanca 20000 Morocco,+212 5 22 27 48 47,casablanca@agency.ma,07:30,19:00,07:30,19:00,07:30,19:00,07:30,19:00,07:30,19:00,08:00,17:00,,

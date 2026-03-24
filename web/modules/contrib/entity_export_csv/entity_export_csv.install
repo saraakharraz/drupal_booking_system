@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Entity Export Csv installation file.
+ */
+
+/**
+ * Install the new entity export csv config entity.
+ */
+function entity_export_csv_update_8101() {
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
+  $entity_type = \Drupal::entityTypeManager()->getDefinition('entity_export_csv');
+  \Drupal::entityDefinitionUpdateManager()->installEntityType($entity_type);
+}

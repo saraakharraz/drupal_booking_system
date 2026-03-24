@@ -1,0 +1,55 @@
+
+appointment.admin:
+  title: 'Appointments'
+  description: 'Manage all appointments'
+  route_name: entity.appointment.collection
+  parent: system.admin_structure
+  weight: 10
+
+agency.admin:
+  title: 'Agencies'
+  description: 'Manage all agencies'
+  route_name: entity.agency.collection
+  parent: system.admin_structure
+  weight: 11
+
+appointment.settings:
+  title: 'Appointment Settings'
+  description: 'Configure appointment settings'
+  route_name: appointment.settings
+  parent: system.admin_config_system
+  weight: 20
+
+# List appointments (under Appointments)
+appointment.list:
+  title: 'View All Appointments'
+  description: 'View list of all appointments'
+  route_name: entity.appointment.collection
+  parent: appointment.admin
+  weight: 0
+
+# Add appointment (under Appointments)
+appointment.add:
+  title: 'Add New Appointment'
+  description: 'Create a new appointment'
+  route_name: entity.appointment.add_form
+  parent: appointment.admin
+  weight: 5
+
+# ==================== AGENCY SUB-ITEMS ====================
+
+# List agencies (under Agencies)
+agency.list:
+  title: 'View All Agencies'
+  description: 'View list of all agencies'
+  route_name: entity.agency.collection
+  parent: agency.admin
+  weight: 0
+
+# Add agency (under Agencies)
+agency.add:
+  title: 'Add New Agency'
+  description: 'Create a new agency'
+  route_name: entity.agency.add_form
+  parent: agency.admin
+  weight: 5

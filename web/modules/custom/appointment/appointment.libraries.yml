@@ -1,0 +1,21 @@
+appointment.theme:
+  version: 1.0
+  css:
+    theme:
+      css/appointment.css: {}
+      'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.css': { type: external }
+  js:
+    'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js': { type: external }
+    js/appointment.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.dialog
+    - core/once
+
+webform.adviser.filter:
+  version: 1.0
+  js:
+    js/webform-adviser-filter.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

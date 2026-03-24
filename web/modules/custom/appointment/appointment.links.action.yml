@@ -1,0 +1,28 @@
+
+# Add new appointment button on appointments list
+entity.appointment.add_form:
+  route_name: entity.appointment.add_form
+  title: 'Add Appointment'
+  appears_on:
+    - entity.appointment.collection
+
+# Add new agency button on agencies list
+entity.agency.add_form:
+  route_name: entity.agency.add_form
+  title: 'Add Agency'
+  appears_on:
+    - entity.agency.collection
+
+appointment.agency_export_json:
+  title: 'Export to JSON'
+  route_name: appointment.agency_export_json
+  appears_on:
+    - entity.agency.collection
+
+appointment.export_csv:
+  route_name: entity_export_csv.export_form
+  title: 'Export to CSV'
+  route_parameters:
+    entity_type: appointment
+  appears_on:
+    - entity.appointment.collection

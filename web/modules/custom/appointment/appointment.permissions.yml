@@ -1,0 +1,39 @@
+book appointment:
+  title: 'Book an appointment'
+  description: 'Allow users to book new appointments'
+  restrict access: true
+
+edit own appointment:
+  title: 'Edit own appointment'
+  description: 'Allow users to edit their own appointments'
+  restrict access: true
+
+edit any appointment:
+  title: 'Edit any appointment'
+  description: 'Allow users to edit any appointment'
+  restrict access: true
+
+cancel own appointment:
+  title: 'Cancel own appointment'
+  description: 'Allow users to cancel their own appointments'
+  restrict access: true
+
+cancel any appointment:
+  title: 'Cancel any appointment'
+  description: 'Allow users to cancel any appointment'
+  restrict access: true
+
+administer appointments:
+  title: 'Administer all appointments'
+  description: 'Full access to appointment management'
+  restrict access: true
+
+administer agencies:
+  title: 'Administer agencies'
+  description: 'Manage agencies and advisers'
+  restrict access: true
+
+access appointment settings:
+  title: 'Access appointment settings'
+  description: 'Access appointment configuration'
+  restrict access: true

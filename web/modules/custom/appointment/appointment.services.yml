@@ -1,0 +1,20 @@
+services:
+  appointment.manager:
+    class: Drupal\appointment\Service\AppointmentManagerService
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+    public: true
+
+
+  appointment.email_service:
+    class: Drupal\appointment\Service\EmailService
+    arguments:
+      - '@entity_type.manager'
+      - '@logger.factory'
+      - '@plugin.manager.mail'
+
+  appointment.agency_export:
+    class: Drupal\appointment\Service\AgencyExportService
+    arguments: [ '@entity_type.manager' ]
+

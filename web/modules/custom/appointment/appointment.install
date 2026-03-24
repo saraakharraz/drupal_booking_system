@@ -1,0 +1,170 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Appointment module.
+ */
+
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_install().
+ */
+function appointment_install() {
+  // Add fields to user entity for advisers
+  appointment_add_user_fields();
+}
+
+/**
+ * Add fields to user entity for advisers.
+ */
+function appointment_add_user_fields() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+
+  // ==================== 1. AGENCY AUTOCOMPLETE FIELD ====================
+  $field_name = 'field_adviser_agency';
+
+  if (!FieldStorageConfig::loadByName('user', $field_name)) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'type' => 'entity_reference',
+      'cardinality' => 1, // Single value
+      'settings' => [
+        'target_type' => 'agency',
+      ],
+    ])->save();
+
+    FieldConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => t('Agency'),
+      'description' => t('Select the agency where this adviser works.'),
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:agency',
+        'handler_settings' => [
+          'auto_create' => FALSE,
+        ],
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'entity_reference_label',
+          'weight' => 0,
+        ],
+      ],
+    ])->save();
+
+    \Drupal::logger('appointment')->info('Created field: @field', ['@field' => $field_name]);
+  }
+
+  // ==================== 2. WORKING DAYS FIELD ====================
+  $field_name = 'field_adviser_working_days';
+
+  if (!FieldStorageConfig::loadByName('user', $field_name)) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+      ],
+    ])->save();
+
+    FieldConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => t('Working Days'),
+      'description' => t('Example: Monday-Friday or Monday;Wednesday;Friday'),
+      'required' => FALSE,
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'string',
+          'weight' => 1,
+        ],
+      ],
+    ])->save();
+
+    \Drupal::logger('appointment')->info('Created field: @field', ['@field' => $field_name]);
+  }
+
+  // ==================== 3. WORKING HOURS FIELD ====================
+  $field_name = 'field_adviser_working_hours';
+
+  if (!FieldStorageConfig::loadByName('user', $field_name)) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'type' => 'string',
+      'settings' => [
+        'max_length' => 255,
+      ],
+    ])->save();
+
+    FieldConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => t('Working Hours'),
+      'description' => t('Example: 08:30-17:00'),
+      'required' => FALSE,
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'string',
+          'weight' => 2,
+        ],
+      ],
+    ])->save();
+
+    \Drupal::logger('appointment')->info('Created field: @field', ['@field' => $field_name]);
+  }
+
+  // ==================== 4. SPECIALIZATIONS DROPDOWN (Single Select) ====================
+  $field_name = 'field_adviser_specialization';
+
+  if (!FieldStorageConfig::loadByName('user', $field_name)) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'type' => 'entity_reference',
+      'cardinality' => 1, // Single value only
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+      ],
+    ])->save();
+
+    FieldConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => t('Specialization'),
+      'description' => t('Select the primary specialization for this adviser.'),
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => [
+            'appointment_type' => 'appointment_type',
+          ],
+          'auto_create' => FALSE,
+        ],
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'entity_reference_label',
+          'weight' => 3,
+        ],
+      ],
+    ])->save();
+
+    \Drupal::logger('appointment')->info('Created field: @field', ['@field' => $field_name]);
+  }
+}
+

@@ -1,0 +1,5 @@
+entity.entity_export_csv.add_form:
+  route_name: entity.entity_export_csv.add_form
+  title: 'Add Entity export csv'
+  appears_on:
+    - entity.entity_export_csv.collection
