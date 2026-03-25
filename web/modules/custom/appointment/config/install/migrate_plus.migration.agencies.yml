@@ -8,9 +8,10 @@ source:
   plugin: csv
   path: 'modules/custom/appointment/data/agencies.csv'
   header_row_count: 1
+  delimiter: ','        # optional, safer
+  enclosure: '"'        # optional, safer
   ids:
-    id:
-      type: integer
+    - id               # <- flat array for CSV plugin
 
 process:
   id: id

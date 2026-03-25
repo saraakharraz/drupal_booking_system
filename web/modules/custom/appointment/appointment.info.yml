@@ -11,4 +11,5 @@ dependencies:
   - drupal:options
   - drupal:taxonomy
   - drupal:datetime
+  - entity_export_csv
 

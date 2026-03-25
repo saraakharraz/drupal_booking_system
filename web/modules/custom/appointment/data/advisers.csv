@@ -1,0 +1,5 @@
+uid,name,email,agency_id,specialization_ids,working_days,working_hours
+1,Ali Ben,ali.ben@example.com,1,1,Monday,Tuesday,Wednesday,08:30-17:00
+2,Sara Akharraz,sara.akharraz@example.com,2,1,Tuesday,Thursday,09:00-18:00
+3,Hassan El Fihri,hassan.fihri@example.com,3,2,Monday,Tuesday,Wednesday,Thursday,Friday,08:00-16:30
+4,Laila Mourad,laila.mourad@example.com,1,3,Monday,Wednesday,Friday,09:00-17:00

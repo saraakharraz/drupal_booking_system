@@ -1,0 +1,23 @@
+id: appointment_type
+label: 'Import Appointment Types'
+migration_group: appointment
+migration_tags:
+  - 'Appointment'
+
+source:
+  plugin: csv
+  path: 'modules/custom/appointment/data/appointment_type.csv'
+  header_row_count: 1
+  delimiter: ','
+  enclosure: '"'
+  ids:
+    - id
+
+process:
+  id: id
+  name: name
+  description: description
+
+destination:
+  plugin: 'entity:taxonomy_term'
+  default_bundle: appointment_type
