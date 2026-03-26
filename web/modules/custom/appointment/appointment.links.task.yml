@@ -1,6 +1,4 @@
 
-# ==================== APPOINTMENT TASKS ====================
-
 entity.appointment.canonical:
   title: 'View'
   route_name: entity.appointment.canonical
@@ -18,7 +16,6 @@ entity.appointment.delete_form:
   base_route: entity.appointment.canonical
   weight: 20
 
-# ==================== AGENCY TASKS ====================
 
 entity.agency.canonical:
   title: 'View'

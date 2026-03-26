@@ -36,7 +36,6 @@ appointment.add:
   parent: appointment.admin
   weight: 5
 
-# ==================== AGENCY SUB-ITEMS ====================
 
 # List agencies (under Agencies)
 agency.list:

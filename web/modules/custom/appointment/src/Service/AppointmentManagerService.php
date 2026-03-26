@@ -88,29 +88,29 @@ class AppointmentManagerService {
         }
       }
 
-      // Validate email
+
       if (!filter_var($values['customer_email'], FILTER_VALIDATE_EMAIL)) {
         throw new \Exception('Invalid email address');
       }
 
-      // Check for double booking
+
       if ($this->isDoubleBooked($values['adviser'], $values['appointment_date'])) {
         throw new \Exception('Adviser is already booked for this time slot');
       }
 
-      // Create the appointment entity
+
       $storage = $this->entityTypeManager->getStorage('appointment');
       $appointment = $storage->create($values);
 
-      // Set default status
+      // default status
       if (empty($appointment->getStatus())) {
         $appointment->setStatus('pending');
       }
 
-      // Save the appointment
+
       $appointment->save();
 
-      // Log the creation
+
       $this->logger->info(
         'Appointment %id created by user %uid',
         [
@@ -164,7 +164,7 @@ class AppointmentManagerService {
       // Save the updated appointment
       $appointment->save();
 
-      // Log the update
+
       $this->logger->info(
         'Appointment %id updated by user %uid',
         [
@@ -374,28 +374,26 @@ class AppointmentManagerService {
    */
   public function isDoubleBooked(int $adviser_id, string $appointment_date, ?int $exclude_appointment_id = NULL): bool {
     try {
-      // Parse the appointment date
+
       $appointment_time = strtotime($appointment_date);
       if ($appointment_time === FALSE) {
         return FALSE;
       }
 
-      // Get all appointments for this adviser
       $appointments = $this->getAppointmentsByAdviser($adviser_id);
 
-      // Check for conflicts (same date/time, excluding cancelled)
+
       foreach ($appointments as $appointment) {
-        // Skip the appointment being updated
+
         if ($exclude_appointment_id && $appointment->id() === $exclude_appointment_id) {
           continue;
         }
 
-        // Skip cancelled appointments
+
         if ($appointment->getStatus() === 'cancelled') {
           continue;
         }
 
-        // Check if dates conflict
         $existing_time = strtotime($appointment->getAppointmentDate());
         if ($existing_time === $appointment_time) {
           return TRUE;
@@ -454,24 +452,24 @@ class AppointmentManagerService {
    * @return array
    *   Array of appointment entities.
    */
-  public function getUpcomingAppointments(int $limit = 10): array {
-    $storage = $this->entityTypeManager->getStorage('appointment');
-    $now = time();
-
-    $query = $storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('appointment_date', $now, '>')
-      ->condition('status', 'cancelled', '<>')
-      ->sort('appointment_date', 'ASC')
-      ->range(0, $limit);
-
-    $ids = $query->execute();
-
-    if (empty($ids)) {
-      return [];
-    }
-
-    return $storage->loadMultiple($ids);
-  }
+//  public function getUpcomingAppointments(int $limit = 10): array {
+//    $storage = $this->entityTypeManager->getStorage('appointment');
+//    $now = time();
+//
+//    $query = $storage->getQuery()
+//      ->accessCheck(FALSE)
+//      ->condition('appointment_date', $now, '>')
+//      ->condition('status', 'cancelled', '<>')
+//      ->sort('appointment_date', 'ASC')
+//      ->range(0, $limit);
+//
+//    $ids = $query->execute();
+//
+//    if (empty($ids)) {
+//      return [];
+//    }
+//
+//    return $storage->loadMultiple($ids);
+//  }
 
 }

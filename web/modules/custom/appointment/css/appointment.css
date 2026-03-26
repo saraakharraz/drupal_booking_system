@@ -643,3 +643,28 @@
 .btn-danger:hover {
   background-color: #a71d2a;
 }
+
+.appointment-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.appointment-fields .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.appointment-fields .field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.appointment-fields .field span {
+  font-size: 1rem;
+  color: #333;
+}

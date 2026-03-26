@@ -80,14 +80,14 @@ class AppointmentUserController extends ControllerBase {
 
       if ($status !== 'cancelled') {
 
-        // ✅ Modify button (OK)
+
         $modify_url = Url::fromRoute('appointment.user.modify', [
           'appointment_id' => $appointment->id()
         ]);
 
         $html .= '<a href="' . $modify_url->toString() . '" class="appointment-btn appointment-btn-modify">Modifier</a>';
 
-        // ✅ Cancel button (OK)
+
         $cancel_url = Url::fromRoute('appointment.user.cancel', [
           'appointment_id' => $appointment->id()
         ]);
@@ -138,7 +138,7 @@ class AppointmentUserController extends ControllerBase {
 
       if ($phone === $appointment->getCustomerPhone()) {
 
-        // ✅ CORRECTION ICI
+
         return $this->redirect('appointment.user.edit', [
           'appointment_id' => $appointment_id
         ]);
@@ -188,6 +188,33 @@ class AppointmentUserController extends ControllerBase {
         $appointment->set('status', 'cancelled');
         $appointment->save();
 
+        $params = [
+          'appointment_id'   => $appointment->id(),
+          'customer_name'    => $appointment->get('customer_name')->value,
+          'customer_email'   => $appointment->get('customer_email')->value,
+          'appointment_date' => $appointment->get('appointment_date')->value,
+          'customer_phone'   => $appointment->get('customer_phone')->value,
+          'agency'           => $appointment->get('agency')->target_id,
+          'adviser'          => $appointment->get('adviser')->target_id,
+          'type'             => $appointment->get('appointment_type')->target_id,
+        ];
+
+        $mailManager = \Drupal::service('plugin.manager.mail');
+
+        $result = $mailManager->mail(
+          'appointment',
+          'appointment_cancellation',
+          $params['customer_email'],
+          \Drupal\Core\Language\LanguageInterface::LANGCODE_DEFAULT,  // ✅ namespace complet si pas importé
+          $params,
+          NULL,
+          TRUE
+        );
+
+        if ($result['result'] !== TRUE) {
+          \Drupal::logger('appointment')->error('Failed to send cancellation email to @email', ['@email' => $params['customer_email']]);
+        }
+
         $this->messenger()->addStatus($this->t('Appointment cancelled.'));
         return $this->redirect('appointment.user.appointments');
       }
@@ -199,13 +226,13 @@ class AppointmentUserController extends ControllerBase {
     return [
       '#type' => 'inline_template',
       '#template' => '
-        <div>
-          <h1>{{ title }}</h1>
-          <form method="POST">
-            <input type="tel" name="phone" placeholder="{{ phone }}" required>
-            <button type="submit">{{ button }}</button>
-          </form>
-        </div>',
+      <div>
+        <h1>{{ title }}</h1>
+        <form method="POST">
+          <input type="tel" name="phone" placeholder="{{ phone }}" required>
+          <button type="submit">{{ button }}</button>
+        </form>
+      </div>',
       '#context' => [
         'title' => $this->t('Cancel Appointment'),
         'phone' => $appointment->getCustomerPhone(),

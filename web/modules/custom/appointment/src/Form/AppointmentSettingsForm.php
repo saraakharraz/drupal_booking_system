@@ -71,14 +71,14 @@ class AppointmentSettingsForm extends ConfigFormBase {
       '#step' => 15,
     ];
 
-    $form['appointment_section']['max_advance_booking_days'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Maximum advance booking (days)'),
-      '#description' => $this->t('How far in advance users can book appointments.'),
-      '#default_value' => $config->get('max_advance_booking_days') ?? 90,
-      '#min' => 1,
-      '#max' => 365,
-    ];
+//    $form['appointment_section']['max_advance_booking_days'] = [
+//      '#type' => 'number',
+//      '#title' => $this->t('Maximum advance booking (days)'),
+//      '#description' => $this->t('How far in advance users can book appointments.'),
+//      '#default_value' => $config->get('max_advance_booking_days') ?? 90,
+//      '#min' => 1,
+//      '#max' => 365,
+//    ];
 
     return parent::buildForm($form, $form_state);
   }

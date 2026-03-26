@@ -9,9 +9,10 @@
  * Implements hook_entity_presave().
  *
  * Generate default title if empty: {ID}-{DATE}-{TIME}
+ *
  */
 function appointment_entity_presave(\Drupal\Core\Entity\EntityInterface $entity) {
-  // Only process appointment entities
+
   if ($entity->getEntityTypeId() !== 'appointment') {
     return;
   }
@@ -19,7 +20,7 @@ function appointment_entity_presave(\Drupal\Core\Entity\EntityInterface $entity)
   $title = $entity->get('title')->value;
   $appointment_date = $entity->get('appointment_date')->value;
 
-  // ==================== GENERATE DEFAULT TITLE IF EMPTY ====================
+  // GENERATE DEFAULT TITLE IF EMPTY
   // Only generate if title is empty
   if (empty($title) && !empty($appointment_date)) {
     // Parse the date
@@ -63,7 +64,6 @@ function appointment_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) 
     }
   }
 
-  // ==================== ADD RDV- PREFIX ====================
   // Add RDV- prefix to ALL titles (only if not already present)
   if (!empty($title) && strpos($title, 'RDV-') !== 0) {
     $title = 'RDV-' . $title;
@@ -79,11 +79,7 @@ function appointment_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) 
   }
 }
 
-/**
- * Implements hook_entity_update().
- *
- * Ensure RDV- prefix is added when updating titles.
- */
+
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -150,71 +146,62 @@ function appointment_entity_update(EntityInterface $entity) {
     ]);
   }
 }
-/**
- * Implements hook_theme().
- */
-//function appointment_theme($existing, $type, $theme, $path) {
-//  return [
-//    'appointment' => [
-//      'render element' => 'elements',
-//    ],
+
+
+//function appointment_views_data_alter(array &$data) {
+//  // Only alter appointment data
+//  if (!isset($data['appointment'])) {
+//    return;
+//  }
+//
+//  // ==================== AGENCY RELATIONSHIP ====================
+//  $data['appointment']['agency']['relationship'] = [
+//    'title' => t('Agency'),
+//    'label' => t('Agency'),
+//    'help' => t('Relate appointment to the Agency entity'),
+//    'base' => 'agency',
+//    'base field' => 'id',
+//    'relationship field' => 'agency',
+//    'id' => 'standard',
 //  ];
+//
+//  // ==================== ADVISER RELATIONSHIP (User) ====================
+//  $data['appointment']['adviser']['relationship'] = [
+//    'title' => t('Adviser'),
+//    'label' => t('Adviser'),
+//    'help' => t('Relate appointment to the User (Adviser) entity'),
+//    'base' => 'users_field_data',
+//    'base field' => 'uid',
+//    'relationship field' => 'adviser',
+//    'id' => 'standard',
+//  ];
+//
+//  // ==================== APPOINTMENT TYPE RELATIONSHIP (Taxonomy) ====================
+//  $data['appointment']['appointment_type']['relationship'] = [
+//    'title' => t('Appointment Type'),
+//    'label' => t('Appointment Type'),
+//    'help' => t('Relate appointment to the Appointment Type (Taxonomy Term) entity'),
+//    'base' => 'taxonomy_term_data',
+//    'base field' => 'tid',
+//    'relationship field' => 'appointment_type',
+//    'id' => 'standard',
+//  ];
+//
+//  // ==================== STATUS FILTER ====================
+//  if (isset($data['appointment']['status'])) {
+//    $data['appointment']['status']['filter']['id'] = 'string';
+//  }
+//
+//  // ==================== CUSTOMER EMAIL FILTER ====================
+//  if (isset($data['appointment']['customer_email'])) {
+//    $data['appointment']['customer_email']['filter']['id'] = 'string';
+//  }
+//
+//  // ==================== CUSTOMER PHONE FILTER ====================
+//  if (isset($data['appointment']['customer_phone'])) {
+//    $data['appointment']['customer_phone']['filter']['id'] = 'string';
+//  }
 //}
-
-function appointment_views_data_alter(array &$data) {
-  // Only alter appointment data
-  if (!isset($data['appointment'])) {
-    return;
-  }
-
-  // ==================== AGENCY RELATIONSHIP ====================
-  $data['appointment']['agency']['relationship'] = [
-    'title' => t('Agency'),
-    'label' => t('Agency'),
-    'help' => t('Relate appointment to the Agency entity'),
-    'base' => 'agency',
-    'base field' => 'id',
-    'relationship field' => 'agency',
-    'id' => 'standard',
-  ];
-
-  // ==================== ADVISER RELATIONSHIP (User) ====================
-  $data['appointment']['adviser']['relationship'] = [
-    'title' => t('Adviser'),
-    'label' => t('Adviser'),
-    'help' => t('Relate appointment to the User (Adviser) entity'),
-    'base' => 'users_field_data',
-    'base field' => 'uid',
-    'relationship field' => 'adviser',
-    'id' => 'standard',
-  ];
-
-  // ==================== APPOINTMENT TYPE RELATIONSHIP (Taxonomy) ====================
-  $data['appointment']['appointment_type']['relationship'] = [
-    'title' => t('Appointment Type'),
-    'label' => t('Appointment Type'),
-    'help' => t('Relate appointment to the Appointment Type (Taxonomy Term) entity'),
-    'base' => 'taxonomy_term_data',
-    'base field' => 'tid',
-    'relationship field' => 'appointment_type',
-    'id' => 'standard',
-  ];
-
-  // ==================== STATUS FILTER ====================
-  if (isset($data['appointment']['status'])) {
-    $data['appointment']['status']['filter']['id'] = 'string';
-  }
-
-  // ==================== CUSTOMER EMAIL FILTER ====================
-  if (isset($data['appointment']['customer_email'])) {
-    $data['appointment']['customer_email']['filter']['id'] = 'string';
-  }
-
-  // ==================== CUSTOMER PHONE FILTER ====================
-  if (isset($data['appointment']['customer_phone'])) {
-    $data['appointment']['customer_phone']['filter']['id'] = 'string';
-  }
-}
 
 /**
  * Implements hook_theme().
@@ -234,126 +221,144 @@ function appointment_theme($existing, $type, $theme, $path) {
  */
 function appointment_preprocess_appointment(&$variables) {
   $variables['#attached']['library'][] = 'appointment/appointment.theme';
+
+  $appointment = $variables['elements']['#appointment'];
+
+  $variables['customer_name'] = $appointment->getCustomerName();
+  $variables['customer_email'] = $appointment->getCustomerEmail();
+  $variables['customer_phone'] = $appointment->getCustomerPhone();
+  $variables['appointment_date'] = $appointment->getAppointmentDate();
+  $variables['status'] = $appointment->getStatus();
+  $variables['notes'] = $appointment->getNotes();
+
+  $agency = $appointment->get('agency')->entity;
+  $variables['agency'] = $agency ? $agency->getName() : t('Not specified');
+
+  $adviser = $appointment->get('adviser')->entity;
+  $variables['adviser'] = $adviser ? $adviser->getDisplayName() : t('Not assigned');
+
+  $type = $appointment->get('appointment_type')->entity;
+  $variables['appointment_type'] = $type ? $type->getName() : t('Not specified');
 }
 /**
  * Implements hook_webform_submission_form_alter().
  */
-function appointment_webform_submission_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // Vérifie si c'est la webform appointment_booking
-  if ($form_id === 'webform_submission_appointment_booking_add_form' ||
-    $form_id === 'webform_submission_appointment_booking_edit_form') {
+//function appointment_webform_submission_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+//  // Vérifie si c'est la webform appointment_booking
+//  if ($form_id === 'webform_submission_appointment_booking_add_form' ||
+//    $form_id === 'webform_submission_appointment_booking_edit_form') {
+//
+//    // Charge la librairie JS pour filtrer les advisers
+//    $form['#attached']['library'][] = 'appointment/webform.adviser.filter';
+//
+//    // Récupère toutes les agences et les types pour les options
+//    $agencies = _appointment_get_agencies_options();
+//    $types = _appointment_get_types_options();
+//    $advisers = _appointment_get_advisers_options();
+//
+//    // Remplis les options des selects/radios avec les BONNES CLÉS
+//    if (isset($form['elements']['step_1_select_agency']['agency_select'])) {
+//      $form['elements']['step_1_select_agency']['agency_select']['#options'] = $agencies;
+//    }
+//
+//    if (isset($form['elements']['step_2_select_appointment_type']['appointment_type'])) {
+//      $form['elements']['step_2_select_appointment_type']['appointment_type']['#options'] = $types;
+//    }
+//
+//    if (isset($form['elements']['step_3_adviser']['adviser'])) {
+//      $form['elements']['step_3_adviser']['adviser']['#options'] = $advisers;
+//    }
+//
+//    // Ajoute les données pour le JS (les advisers groupés par agency + type)
+//    $form['#attached']['drupalSettings']['appointmentBooking'] = [
+//      'advisers' => _appointment_get_advisers_with_agency_type(),
+//    ];
+//  }
+//}
 
-    // Charge la librairie JS pour filtrer les advisers
-    $form['#attached']['library'][] = 'appointment/webform.adviser.filter';
-
-    // Récupère toutes les agences et les types pour les options
-    $agencies = _appointment_get_agencies_options();
-    $types = _appointment_get_types_options();
-    $advisers = _appointment_get_advisers_options();
-
-    // Remplis les options des selects/radios avec les BONNES CLÉS
-    if (isset($form['elements']['step_1_select_agency']['agency_select'])) {
-      $form['elements']['step_1_select_agency']['agency_select']['#options'] = $agencies;
-    }
-
-    if (isset($form['elements']['step_2_select_appointment_type']['appointment_type'])) {
-      $form['elements']['step_2_select_appointment_type']['appointment_type']['#options'] = $types;
-    }
-
-    if (isset($form['elements']['step_3_adviser']['adviser'])) {
-      $form['elements']['step_3_adviser']['adviser']['#options'] = $advisers;
-    }
-
-    // Ajoute les données pour le JS (les advisers groupés par agency + type)
-    $form['#attached']['drupalSettings']['appointmentBooking'] = [
-      'advisers' => _appointment_get_advisers_with_agency_type(),
-    ];
-  }
-}
-
-/**
- * Get all agencies as options.
- */
-function _appointment_get_agencies_options() {
-  $agencies = \Drupal::entityTypeManager()
-    ->getStorage('agency')
-    ->loadMultiple();
-
-  $options = [];
-  foreach ($agencies as $agency) {
-    $options[$agency->id()] = $agency->getName();
-  }
-
-  return $options;
-}
-
-/**
- * Get all appointment types as options.
- */
-function _appointment_get_types_options() {
-  $terms = \Drupal::entityTypeManager()
-    ->getStorage('taxonomy_term')
-    ->loadByProperties(['vid' => 'appointment_type']);
-
-  $options = [];
-  foreach ($terms as $term) {
-    $options[$term->id()] = $term->getName();
-  }
-
-  return $options;
-}
-
-/**
- * Get all advisers as options.
- */
-function _appointment_get_advisers_options() {
-  $users = \Drupal::entityTypeManager()
-    ->getStorage('user')
-    ->loadMultiple();
-
-  $options = [];
-  foreach ($users as $user) {
-    if (!$user->get('field_adviser_agency')->isEmpty()) {
-      $options[$user->id()] = $user->getDisplayName();
-    }
-  }
-
-  return $options;
-}
-
-/**
- * Get advisers grouped by agency and appointment type.
- * Format: agency_id_type_id => [user_id => display_name]
- */
-function _appointment_get_advisers_with_agency_type() {
-  $users = \Drupal::entityTypeManager()
-    ->getStorage('user')
-    ->loadMultiple();
-
-  $advisers_by_agency_type = [];
-
-  foreach ($users as $user) {
-    $agency_id = $user->get('field_adviser_agency')->value;
-    $type_id = $user->get('field_adviser_specialization')->value;
-
-    // Skip if adviser doesn't have both fields filled
-    if (!$agency_id || !$type_id) {
-      continue;
-    }
-
-    // Create key: agency_id_type_id
-    $key = $agency_id . '_' . $type_id;
-
-    if (!isset($advisers_by_agency_type[$key])) {
-      $advisers_by_agency_type[$key] = [];
-    }
-
-    // Add adviser to this combination
-    $advisers_by_agency_type[$key][$user->id()] = $user->getDisplayName();
-  }
-
-  return $advisers_by_agency_type;
-}
+///**
+// * Get all agencies as options.
+// */
+//function _appointment_get_agencies_options() {
+//  $agencies = \Drupal::entityTypeManager()
+//    ->getStorage('agency')
+//    ->loadMultiple();
+//
+//  $options = [];
+//  foreach ($agencies as $agency) {
+//    $options[$agency->id()] = $agency->getName();
+//  }
+//
+//  return $options;
+//}
+//
+///**
+// * Get all appointment types as options.
+// */
+//function _appointment_get_types_options() {
+//  $terms = \Drupal::entityTypeManager()
+//    ->getStorage('taxonomy_term')
+//    ->loadByProperties(['vid' => 'appointment_type']);
+//
+//  $options = [];
+//  foreach ($terms as $term) {
+//    $options[$term->id()] = $term->getName();
+//  }
+//
+//  return $options;
+//}
+//
+///**
+// * Get all advisers as options.
+// */
+//function _appointment_get_advisers_options() {
+//  $users = \Drupal::entityTypeManager()
+//    ->getStorage('user')
+//    ->loadMultiple();
+//
+//  $options = [];
+//  foreach ($users as $user) {
+//    if (!$user->get('field_adviser_agency')->isEmpty()) {
+//      $options[$user->id()] = $user->getDisplayName();
+//    }
+//  }
+//
+//  return $options;
+//}
+//
+///**
+// * Get advisers grouped by agency and appointment type.
+// * Format: agency_id_type_id => [user_id => display_name]
+// */
+//function _appointment_get_advisers_with_agency_type() {
+//  $users = \Drupal::entityTypeManager()
+//    ->getStorage('user')
+//    ->loadMultiple();
+//
+//  $advisers_by_agency_type = [];
+//
+//  foreach ($users as $user) {
+//    $agency_id = $user->get('field_adviser_agency')->value;
+//    $type_id = $user->get('field_adviser_specialization')->value;
+//
+//    // Skip if adviser doesn't have both fields filled
+//    if (!$agency_id || !$type_id) {
+//      continue;
+//    }
+//
+//    // Create key: agency_id_type_id
+//    $key = $agency_id . '_' . $type_id;
+//
+//    if (!isset($advisers_by_agency_type[$key])) {
+//      $advisers_by_agency_type[$key] = [];
+//    }
+//
+//    // Add adviser to this combination
+//    $advisers_by_agency_type[$key][$user->id()] = $user->getDisplayName();
+//  }
+//
+//  return $advisers_by_agency_type;
+//}
 
 /**
  * Implements hook_mail().
@@ -375,7 +380,7 @@ function appointment_mail($key, &$message, $params)
     // Confirmation email
     // -----------------------------------------
     case 'appointment_confirmation':
-      $message['subject'] = t('Appointment Confirmation - Business Appointments');
+      $message['subject'] = t('Appointment Confirmation');
 
       if (empty($params['appointment_date']) || empty($params['customer_name'])) {
         \Drupal::logger('appointment')->error('Missing email parameters for confirmation.');
@@ -417,7 +422,7 @@ function appointment_mail($key, &$message, $params)
     // Modification email
     // -----------------------------------------
     case 'appointment_modification':
-      $message['subject'] = t('Appointment Updated - Business Appointments');
+      $message['subject'] = t('Appointment Updated');
 
       if (empty($params['appointment_date']) || empty($params['customer_name'])) {
         \Drupal::logger('appointment')->error('Missing email parameters for modification.');
@@ -459,7 +464,7 @@ function appointment_mail($key, &$message, $params)
     // Cancellation email
     // -----------------------------------------
     case 'appointment_cancellation':
-      $message['subject'] = t('Appointment Cancelled - Business Appointments');
+      $message['subject'] = t('Appointment Cancelled');
 
       if (empty($params['appointment_date']) || empty($params['customer_name'])) {
         \Drupal::logger('appointment')->error('Missing email parameters for cancellation.');
@@ -498,5 +503,7 @@ function appointment_mail($key, &$message, $params)
       break;
   }
 }
+
+
 
 

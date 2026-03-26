@@ -20,7 +20,7 @@ entity.appointment.add_form:
 
 # View single appointment
 entity.appointment.canonical:
-  path: '/admin/appointments/{appointment}'
+  path: '/appointments/{appointment}'
   defaults:
     _entity_view: 'appointment.full'
     _title: 'Appointment'

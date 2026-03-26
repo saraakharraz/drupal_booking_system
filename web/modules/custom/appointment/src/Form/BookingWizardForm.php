@@ -163,6 +163,8 @@ class BookingWizardForm extends FormBase {
       '#default_value' => $this->getTempData('agency'),
     ];
 
+
+
     $form['actions'] = ['#type' => 'actions'];
 
     $form['actions']['next'] = [
@@ -286,7 +288,7 @@ class BookingWizardForm extends FormBase {
       $adviser = \Drupal::entityTypeManager()->getStorage('user')->load($adviser_id);
 
 
-      // Get working days and hours from the fields
+      //working days and hours
       $working_days  = $adviser->get('field_adviser_working_days')->value ?? '';
       $working_hours = $adviser->get('field_adviser_working_hours')->value ?? '';
 
@@ -308,7 +310,7 @@ class BookingWizardForm extends FormBase {
       '#markup' => '<div id="appointment-calendar"></div>',
     ];
 
-    // FIX: Use #default_value instead of #value so it gets submitted
+
     $form['appointment_date'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Appointment Date and Time'),
@@ -482,6 +484,20 @@ class BookingWizardForm extends FormBase {
         $advisers[$user->id()] = $user->getDisplayName();
       }
     }
+// directment via bd (plus perf)
+//    $query = \Drupal::entityQuery('user')
+//      ->condition('field_adviser_agency', $agency_id)
+//      ->condition('field_adviser_specialization', $appointment_type_id)
+//      ->condition('status', 1); // seulement users activés
+//
+//    $user_ids = $query->execute();
+//    $users = \Drupal::entityTypeManager()->getStorage('user')->loadMultiple($user_ids);
+//
+//    $advisers = [];
+//    foreach ($users as $user) {
+//      $advisers[$user->id()] = $user->getDisplayName();
+//    }
+
 
     return $advisers;
   }
@@ -542,7 +558,7 @@ class BookingWizardForm extends FormBase {
       return;
     }
 
-    // Create appointment entity
+    // Creation appointment entity
     $appointment = \Drupal::entityTypeManager()->getStorage('appointment')->create([
       'title' => '',
       'appointment_date' => $all_data['appointment_date'],

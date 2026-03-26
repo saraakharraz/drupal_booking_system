@@ -80,7 +80,7 @@ class AppointmentUserEditForm extends FormBase {
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Convert datetime to string in MySQL format
+
     $appointment_date_value = $form_state->getValue('appointment_date');
     if ($appointment_date_value instanceof DrupalDateTime) {
       $appointment_date_value = $appointment_date_value->format('Y-m-d H:i:s');
@@ -109,13 +109,13 @@ class AppointmentUserEditForm extends FormBase {
       $mailManager = \Drupal::service('plugin.manager.mail');
 
       $result = $mailManager->mail(
-        'appointment',                      // module name
-        'appointment_modification',         // key (defines which hook_mail case to use)
+        'appointment',
+        'appointment_modification',
         $params['customer_email'],
         LanguageInterface::LANGCODE_DEFAULT,
         $params,
-        NULL,                               // from (NULL = default site email)
-        TRUE                                // send immediately
+        NULL,
+        TRUE
       );
 
       if ($result['result'] !== TRUE) {

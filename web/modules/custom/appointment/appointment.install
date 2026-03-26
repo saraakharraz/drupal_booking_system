@@ -22,7 +22,6 @@ function appointment_install() {
 function appointment_add_user_fields() {
   $entity_type_manager = \Drupal::entityTypeManager();
 
-  // ==================== 1. AGENCY AUTOCOMPLETE FIELD ====================
   $field_name = 'field_adviser_agency';
 
   if (!FieldStorageConfig::loadByName('user', $field_name)) {
@@ -125,7 +124,7 @@ function appointment_add_user_fields() {
     \Drupal::logger('appointment')->info('Created field: @field', ['@field' => $field_name]);
   }
 
-  // ==================== 4. SPECIALIZATIONS DROPDOWN (Single Select) ====================
+  // ==================== 4. SPECIALIZATIONS  ====================
   $field_name = 'field_adviser_specialization';
 
   if (!FieldStorageConfig::loadByName('user', $field_name)) {

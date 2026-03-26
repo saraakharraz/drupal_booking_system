@@ -119,7 +119,6 @@ class AppointmentListBuilder extends EntityListBuilder {
     $query = $storage->getQuery()
       ->accessCheck(FALSE);
 
-    // Get filter values from request
     $request = \Drupal::request();
     $adviser_id = $request->query->get('adviser');
     $agency_id = $request->query->get('agency');
@@ -127,17 +126,17 @@ class AppointmentListBuilder extends EntityListBuilder {
     $date_to = $request->query->get('date_to');
     $status = $request->query->get('status');
 
-    // Apply adviser filter
+
     if (!empty($adviser_id)) {
       $query->condition('adviser', $adviser_id);
     }
 
-    // Apply agency filter
+
     if (!empty($agency_id)) {
       $query->condition('agency', $agency_id);
     }
 
-    // Apply date range filter - IMPORTANT: appointment_date is a STRING like "2026-03-22T16:09:00"
+    // Apply date range filter
     if (!empty($date_from)) {
       // Convert date to string format for comparison (YYYY-MM-DD)
       $from_date_str = $date_from;  // Already in YYYY-MM-DD format
@@ -145,19 +144,18 @@ class AppointmentListBuilder extends EntityListBuilder {
     }
 
     if (!empty($date_to)) {
-      // Add one day to include the entire "to" date
       $to_date = \DateTime::createFromFormat('Y-m-d', $date_to);
       $to_date->modify('+1 day');
       $to_date_str = $to_date->format('Y-m-d');
       $query->condition('appointment_date', $to_date_str, '<');
     }
 
-    // Apply status filter
+
     if (!empty($status)) {
       $query->condition('status', $status);
     }
 
-    // Sort by date descending
+
     $query->sort('appointment_date', 'DESC');
 
     $ids = $query->execute();
