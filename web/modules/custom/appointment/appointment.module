@@ -366,6 +366,12 @@ function appointment_preprocess_appointment(&$variables) {
 function appointment_mail($key, &$message, $params)
 {
   switch ($key) {
+    case 'access_link':
+      $message['subject'] = t('Your appointments link');
+      $message['body'][] = t("Hello,\n\nYou can view your appointments by clicking the link below:");
+      $message['body'][] = $params['link'];
+      $message['body'][] = t("\nThis link is valid for 24 hours.");
+      break;
     case 'appointment_pending':
       $message['subject'] = t('Appointment Request Received');
 
@@ -502,6 +508,7 @@ function appointment_mail($key, &$message, $params)
       \Drupal::logger('appointment')->info('Cancellation email prepared for: @email', ['@email' => $params['customer_email']]);
       break;
   }
+
 }
 
 

@@ -167,3 +167,52 @@ function appointment_add_user_fields() {
   }
 }
 
+/**
+ * Create table for anonymous appointment access tokens.
+ */
+function appointment_update_11001() {
+  $schema = [
+    'description' => 'Stores tokens for anonymous access to appointments',
+    'fields' => [
+      'id' => [
+        'description' => 'Primary Key',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'token' => [
+        'description' => 'Random token string',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ],
+      'email' => [
+        'description' => 'Customer email',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'created' => [
+        'description' => 'Token creation timestamp (Unix)',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ],
+      'expires' => [
+        'description' => 'Token expiration timestamp (Unix)',
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'token_unique' => ['token'],
+    ],
+  ];
+
+  \Drupal::database()->schema()->createTable('appointment_access_token', $schema);
+
+  return t('Created table for anonymous appointment access tokens.');
+}
+

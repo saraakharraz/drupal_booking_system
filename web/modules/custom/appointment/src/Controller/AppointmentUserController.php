@@ -14,11 +14,34 @@ class AppointmentUserController extends ControllerBase {
     $current_user = \Drupal::currentUser();
     $user_email = $current_user->getEmail();
 
+    $token_param = \Drupal::request()->query->get('token');
+    if (empty($user_email) && $token_param) {
+      $record = \Drupal::database()->select('appointment_access_token', 't')
+        ->fields('t')
+        ->condition('token', $token_param)
+        ->execute()
+        ->fetchAssoc();
+
+      if (!$record) {
+        return ['#markup' => $this->t('Token invalide.')];
+      }
+
+      $now = new \DateTime();
+      $expires = new \DateTime($record['expires']);
+      if ($now > $expires) {
+        return ['#markup' => $this->t('Le lien a expiré.')];
+      }
+
+      // Token is valid → use the email from the token
+      $user_email = $record['email'];
+    }
     // If user is anonymous
     if (empty($user_email)) {
-      return [
-        '#markup' => '<div class="appointment-empty"><p>' . $this->t('Please login to view your appointments.') . '</p></div>',
-      ];
+//      return [
+//        '#markup' => '<div class="appointment-empty"><p>' . $this->t('Please login to view your appointments.') . '</p></div>',
+//      ];
+      return \Drupal::formBuilder()->getForm(\Drupal\appointment\Form\AnonymousEmailForm::class);
+
     }
 
     // Load all appointments for this user
